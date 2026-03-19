@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danak's Schedule - Modern Interactive</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Day Mode Colors */
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --text: #374151;
+            --text-light: #6b7280;
+            --bg: #f9fafb;
+            --card-bg: #ffffff;
+            --header-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            /* Night Mode Colors */
+            --primary: #818cf8;
+            --primary-light: #3730a3;
+            --secondary: #34d399;
+            --accent: #fbbf24;
+            --text: #e5e7eb;
+            --text-light: #9ca3af;
+            --bg: #111827;
+            --card-bg: #1f2937;
+            --header-bg: #1f2937;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            padding: 24px;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            background: var(--header-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            transition: var(--transition);
+            animation: fadeIn 0.8s ease;
+        }
+
+        .title-section h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            transition: var(--transition);
+        }
+
+        .title-section p {
+            font-size: 16px;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .theme-toggle, .test-btn {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        .test-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .theme-toggle:hover, .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-toggle i, .test-btn i {
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        /* Days Container */
+        .days-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Day Column */
+        .day-column {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            animation: slideUp 0.6s ease;
+        }
+
+        .day-column:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-header {
+            padding: 20px 15px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        .day-content {
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* Task Cards */
+        .task-card {
+            padding: 18px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: fadeIn 0.5s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            transition: var(--transition);
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-card.expanded {
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        .task-time {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .task-time i {
+            color: var(--primary);
+        }
+
+        .task-description {
+            font-size: 15px;
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        .task-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            margin-top: 0;
+        }
+
+        .task-card.expanded .task-details {
+            max-height: 200px;
+            margin-top: 12px;
+        }
+
+        /* Color Categories */
+        .morning-routine { background-color: rgba(224, 242, 254, 0.7); border-left: 5px solid #0284c7; }
+        .dark-mode .morning-routine { background-color: rgba(3, 105, 161, 0.2); }
+        .workout { background-color: rgba(220, 252, 231, 0.7); border-left: 5px solid #16a34a; }
+        .dark-mode .workout { background-color: rgba(22, 163, 74, 0.2); }
+        .trading { background-color: rgba(254, 243, 199, 0.7); border-left: 5px solid #d97706; }
+        .dark-mode .trading { background-color: rgba(217, 119, 6, 0.2); }
+        .study { background-color: rgba(252, 231, 243, 0.7); border-left: 5px solid #db2777; }
+        .dark-mode .study { background-color: rgba(219, 39, 119, 0.2); }
+        .music { background-color: rgba(224, 231, 255, 0.7); border-left: 5px solid #4f46e5; }
+        .dark-mode .music { background-color: rgba(79, 70, 229, 0.2); }
+        .programming { background-color: rgba(209, 250, 229, 0.7); border-left: 5px solid #0d9488; }
+        .dark-mode .programming { background-color: rgba(13, 148, 136, 0.2); }
+        .church { background-color: rgba(243, 244, 246, 0.7); border-left: 5px solid #6b7280; }
+        .dark-mode .church { background-color: rgba(107, 114, 128, 0.2); }
+        .pentesting { background-color: rgba(254, 226, 226, 0.7); border-left: 5px solid #dc2626; }
+        .dark-mode .pentesting { background-color: rgba(220, 38, 38, 0.2); }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .pulse { animation: pulse 2s infinite; }
+
+        /* Current Day Highlight */
+        .current-day .day-header { background-color: var(--accent); position: relative; }
+        .current-day .day-header::after {
+            content: 'TODAY'; position: absolute; top: 5px; right: 10px; font-size: 10px;
+            background: rgba(255, 255, 255, 0.3); padding: 2px 6px; border-radius: 10px;
+        }
+
+        /* Footer */
+        .footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 14px; transition: var(--transition); }
+
+        /* Responsive */
+        @media (max-width: 1200px) { .days-container { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 900px) { .days-container { grid-template-columns: repeat(2, 1fr); } .header { flex-direction: column; gap: 20px; text-align: center; } }
+        @media (max-width: 600px) { .days-container { grid-template-columns: 1fr; } body { padding: 15px; } .task-card { padding: 15px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title-section">
+                <h1>Danak's Weekly Schedule</h1>
+                <p>Productivity & Personal Development Planner</p>
+            </div>
+            <div class="controls">
+                <button class="test-btn" id="testAlertBtn">
+                    <i class="fas fa-bell"></i>
+                    <span>Test Alert</span>
+                </button>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="days-container" id="daysContainer">
+            </div>
+        
+        <div class="footer">
+            <p>Click on any task to see more details • Made with <i class="fas fa-heart" style="color: #e53e3e;"></i></p>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. SET YOUR NTFY TOPIC HERE! 
+        // Example: "danak_routine_99x"
+        // ==========================================
+        const NTFY_TOPIC = "Danak_Schedule_2026"; 
+
+        // Schedule data for Danak (Updated with specific times)
+        const scheduleData = {
+            monday: [
+                { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
+                { time: "5:35 AM", description: "Prayer 30 min", category: "morning-routine" },
+                { time: "5:50 AM", description: "Bible reading 5 Chapters", category: "morning-routine" },
+                { time: "6:00 AM - 6:40 AM", description: "Work out hour", category: "workout" },
+                { time: "7:00 AM - 8:00 AM", description: "Trading", category: "trading" },
+                { time: "9:00 AM - 9:40 AM", description: "Drum practice", category: "music" },
+                { time: "10:00 AM - 11:30 AM", description: "Drum", category: "music" },
+                { time: "1:00 PM - 3:00 PM", description: "Programming", category: "programming" },
+                { time: "3:30 PM - 8:00 PM", description: "Pentesting", category: "pentesting" },
+                { time: "9:00 PM - 10:20 PM", description: "Sermon and Bible reading", category: "church" }
+            ],
+            tuesday: [
+                { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
+                { time: "5:35 AM", description: "Prayer 30 min", category: "morning-routine" },
+                { time: "5:50 AM", description: "Bible reading 5 Chapters", category: "morning-routine" },
+                { time: "7:00 AM - 9:00 AM", description: "Pentesting Study", category: "pentesting" },
+                { time: "2:00 PM - 4:00 PM", description: "Academic Study", category: "study" },
+                { time: "6:00 PM - 8:30 PM", description: "Church", category: "church" },
+                { time: "9:00 PM - 11:00 PM", description: "Pentesting", category: "pentesting" }
+            ],
+            wednesday: [
+                { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
+                { time: "5:35 AM", description: "Prayer 30 min", category: "morning-routine" },
+                { time: "5:50 AM", description: "Bible reading 5 Chapters", category: "morning-routine" },
+                { time: "7:00 AM - 8:00 AM", description: "Trading", category: "trading" },
+                { time: "9:00 AM - 9:40 AM", description: "Drum practice", category: "music" },
+                { time: "10:00 AM - 11:30 AM", description: "Drum", category: "music" },
+                { time: "6:00 PM", description: "Harmonized B.S", category: "study" }
+            ],
+            thursday: [
+                { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
+                { time: "5:35 AM", description: "Prayer 30 min", category: "morning-routine" },
+                { time: "5:50 AM", description: "Bible reading 5 Chapters", category: "morning-routine" },
+                { time: "8:00 AM - 11:00AM", description: "Pentesting Study", category: "pentesting" },
+                { time: "3:00 PM - 7:00 PM", description: "Pentesting", category: "pentesting" },
+                { time: "6:00 PM - 8:30 PM", description: "Programming", category: "programming" },
+                { time: "7:30 PM - 9:20 PM", description: "Music Prod", category: "music" }
+            ],
+            friday: [
+                { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
+                { time: "5:35 AM", description: "Prayer 30 min", category: "morning-routine" },
+                { time: "5:50 AM", description: "Bible reading 5 Chapters", category: "morning-routine" },
+                { time: "7:00 AM - 8:00 AM", description: "Trading", category: "trading" },
+                { time: "9:00 AM - 9:40 AM", description: "Drum practice", category: "music" },
+                { time: "10:00 AM - 11:30 AM", description: "Drum", category: "music" },
+                { time: "4:30 PM - 5:30 PM", description: "Sound Engineering", category: "music" },
+                { time: "6:00 PM - 8:30 PM", description: "Church", category: "church" },
+                { time: "7:00 PM - 10:00 PM", description: "Pentesting Study", category: "pentesting" }
+            ],
+            saturday: [
+                { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
+                { time: "5:35 AM", description: "Prayer 30 min", category: "morning-routine" },
+                { time: "5:50 AM", description: "Bible reading 5 Chapters", category: "morning-routine" },
+                { time: "8:00 AM - 12:00 PM", description: "Class", category: "study" },
+                { time: "2:00 PM - 5:30 PM", description: "Lab class", category: "study" },
+                { time: "6:00 PM - 7:30 PM", description: "Math Q & A", category: "study" }
+            ],
+            sunday: [
+                { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
+                { time: "5:35 AM", description: "Prayer 30 min", category: "morning-routine" },
+                { time: "5:50 AM", description: "Bible reading 5 Chapters", category: "morning-routine" },
+                { time: "7:00 AM - 8:30 AM", description: "Church Sound Check", category: "church" },
+                { time: "10:00 AM - 1:00 PM", description: "Class", category: "study" },
+                { time: "2:00 PM - 5:00 PM", description: "Church Community", category: "church" },
+                { time: "6:00 PM - 8:00 PM", description: "Programming", category: "programming" }
+            ]
+        };
+
+        const days = [
+            { name: "Monday", key: "monday" }, { name: "Tuesday", key: "tuesday" },
+            { name: "Wednesday", key: "wednesday" }, { name: "Thursday", key: "thursday" },
+            { name: "Friday", key: "friday" }, { name: "Saturday", key: "saturday" },
+            { name: "Sunday", key: "sunday" }
+        ];
+
+        const currentDayIndex = new Date().getDay();
+        const adjustedCurrentDayIndex = currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+
+        // UI RENDERING
+        function renderSchedule() {
+            const daysContainer = document.getElementById('daysContainer');
+            daysContainer.innerHTML = '';
+            
+            days.forEach((day, index) => {
+                const dayColumn = document.createElement('div');
+                dayColumn.className = `day-column ${index === adjustedCurrentDayIndex ? 'current-day' : ''}`;
+                
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day.name;
+                
+                const dayContent = document.createElement('div');
+                dayContent.className = 'day-content';
+                
+                scheduleData[day.key].forEach(task => {
+                    const taskCard = document.createElement('div');
+                    taskCard.className = `task-card ${task.category}`;
+                    
+                    const timeIcon = getTimeIcon(task.time);
+                    
+                    taskCard.innerHTML = `
+                        <div class="task-time">
+                            <i class="${timeIcon}"></i>
+                            <span>${task.time}</span>
+                        </div>
+                        <div class="task-description">${task.description}</div>
+                        <div class="task-details">
+                            <p>Additional details about this activity would appear here when expanded.</p>
+                        </div>
+                    `;
+                    
+                    taskCard.addEventListener('click', function() {
+                        document.querySelectorAll('.task-card.expanded').forEach(card => {
+                            if (card !== this) card.classList.remove('expanded');
+                        });
+                        this.classList.toggle('expanded');
+                    });
+                    
+                    dayContent.appendChild(taskCard);
+                });
+                
+                dayColumn.appendChild(dayHeader);
+                dayColumn.appendChild(dayContent);
+                daysContainer.appendChild(dayColumn);
+            });
+        }
+
+        function getTimeIcon(timeString) {
+            if (timeString.includes('AM') || timeString.includes('Morning')) return 'fas fa-sun';
+            else if (timeString.includes('PM') || timeString.includes('Afternoon') || timeString.includes('Evening')) return 'fas fa-moon';
+            else if (timeString.includes('Work out') || timeString.includes('exercise')) return 'fas fa-dumbbell';
+            else if (timeString.includes('Prayer') || timeString.includes('Bible') || timeString.includes('Church')) return 'fas fa-pray';
+            else if (timeString.includes('Drum') || timeString.includes('Music')) return 'fas fa-drum';
+            else if (timeString.includes('Programming') || timeString.includes('Pentesting')) return 'fas fa-laptop-code';
+            else if (timeString.includes('Trading')) return 'fas fa-chart-line';
+            else if (timeString.includes('Study') || timeString.includes('Class')) return 'fas fa-book';
+            else return 'far fa-clock';
+        }
+
+        // ==========================================
+        // NOTIFICATION LOGIC
+        // ==========================================
+        function sendPhoneNotification(taskDescription) {
+            if (NTFY_TOPIC === "YOUR_SECRET_TOPIC_HERE") {
+                alert("Please change YOUR_SECRET_TOPIC_HERE in the code to your actual ntfy topic!");
+                return;
+            }
+
+            fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
+                method: 'POST',
+                body: `Time for: ${taskDescription}`,
+                headers: {
+                    'Title': 'Danak Schedule',
+                    'Priority': 'high',
+                    'Tags': 'alarm_clock,calendar'
+                }
+            })
+            .then(() => console.log("Sent notification to phone:", taskDescription))
+            .catch(err => console.error("Notification failed:", err));
+        }
+
+        // Creates a perfectly formatted time string like "5:30 AM" or "6:00 PM"
+        function getCurrentFormattedTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // convert '0' to '12'
+            minutes = minutes < 10 ? '0' + minutes : minutes; // add leading zero to minutes
+            
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        function checkScheduleForAlarms() {
+            const now = new Date();
+            const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const currentDayName = daysOfWeek[now.getDay()];
+            
+            const timeString = getCurrentFormattedTime();
+            const todaysTasks = scheduleData[currentDayName];
+            
+            if (!todaysTasks) return;
+
+            todaysTasks.forEach(task => {
+                // If a task says "6:00 AM - 6:40 AM", startsWith("6:00 AM") catches it exactly when the clock hits 6:00 AM
+                if (task.time.startsWith(timeString)) {
+                    sendPhoneNotification(task.description);
+                }
+            });
+        }
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function() {
+            renderSchedule();
+            
+            // Start checking the clock every 60 seconds
+            setInterval(checkScheduleForAlarms, 60000);
+            
+            // Add pulse animation to current day
+            setTimeout(() => {
+                const currentDay = document.querySelector('.current-day');
+                if (currentDay) {
+                    currentDay.classList.add('pulse');
+                }
+            }, 1000);
+
+            // Theme toggle listener
+            document.getElementById('themeToggle').addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const icon = this.querySelector('i');
+                const text = this.querySelector('span');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.className = 'fas fa-sun'; text.textContent = 'Light Mode';
+                } else {
+                    icon.className = 'fas fa-moon'; text.textContent = 'Dark Mode';
+                }
+            });
+
+            // Test Button Listener
+            document.getElementById('testAlertBtn').addEventListener('click', function() {
+                sendPhoneNotification("This is a Test Alert! Connection Successful 🚀");
+                
+                // Visual feedback on the button
+                const btn = this;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i><span>Sent! Check Phone</span>';
+                btn.style.background = 'var(--secondary)';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = 'var(--primary)';
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>
