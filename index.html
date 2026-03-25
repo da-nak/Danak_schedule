@@ -293,11 +293,8 @@
     </div>
 
     <script>
-        // ==========================================
-        // 1. SET YOUR NTFY TOPIC HERE! 
-        // Example: "danak_routine_99x"
-        // ==========================================
-        const NTFY_TOPIC = "Danak_Schedule_2026"; 
+       
+        const NTFY_TOPIC = "Danak_Schedule_2026_3848"; 
 
         // Schedule data for Danak (Updated with specific times)
         const scheduleData = {
@@ -305,13 +302,14 @@
                 { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
                 { time: "5:35 AM", description: "Prayer 30 min", category: "morning-routine" },
                 { time: "5:50 AM", description: "Bible reading 5 Chapters", category: "morning-routine" },
-                { time: "6:00 AM - 6:40 AM", description: "Work out hour", category: "workout" },
+                { time: "6:00 AM - 6:40 AM", description: "", category: "workout" },
                 { time: "7:00 AM - 8:00 AM", description: "Trading", category: "trading" },
                 { time: "9:00 AM - 9:40 AM", description: "Drum practice", category: "music" },
                 { time: "10:00 AM - 11:30 AM", description: "Drum", category: "music" },
-                { time: "1:00 PM - 3:00 PM", description: "Programming", category: "programming" },
-                { time: "3:30 PM - 8:00 PM", description: "Pentesting", category: "pentesting" },
-                { time: "9:00 PM - 10:20 PM", description: "Sermon and Bible reading", category: "church" }
+                { time: "2:00 PM - 9:00 PM", description: "Pentesting", category: "pentesting" },
+                { time: "4:00 PM - 5:00 PM", description: "Gym", category: "pentesting" },
+                { time: "6:00 PM - 3:00 PM", description: "Lole Church", category: "programming" },
+                { time: "9:00 PM - 10:20 PM", description: "Pentesting", category: "church" }
             ],
             tuesday: [
                 { time: "5:30 AM", description: "Wake up", category: "morning-routine" },
@@ -444,13 +442,22 @@
         // ==========================================
         // NOTIFICATION LOGIC
         // ==========================================
-        function sendPhoneNotification(taskDescription) {
-            if (NTFY_TOPIC === "YOUR_SECRET_TOPIC_HERE") {
-                alert("Please change YOUR_SECRET_TOPIC_HERE in the code to your actual ntfy topic!");
-                return;
+        const NTFY_TOPIC = "Danak_Schedule_2026_3848";
+
+function sendPhoneNotification(taskDescription) {
+  if (!NTFY_TOPIC) {
+    console.error("NTFY topic missing");
+    return;
+  }
+
+  fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
+    method: "POST",
+    body: taskDescription
+  });
+}
             }
 
-            fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
+            fetch(`https://ntfy.sh/${Danak_Schedule_2026_3848}`, {
                 method: 'POST',
                 body: `Time for: ${taskDescription}`,
                 headers: {
